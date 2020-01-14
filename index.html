@@ -5,7 +5,7 @@
         <script src="game.js"></script>
         <link href="game.css" rel="stylesheet">
     </head>
-    <body onload="start();">
+    <body onload="start(new GameCanvas(document.getElementById('surface')));">
         <canvas id="surface" width="500" height="500"/>
     </body>
 </html>
