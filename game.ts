@@ -1,3 +1,33 @@
+class Rectangle {
+    top: number = 0
+    left: number = 0
+    width: number = 0
+    height: number = 0
+
+    constructor(top: number = 0, left: number = 0, width: number = 0, height: number = 0){
+        this.top = top
+        this.left = left
+        this.width = width
+        this.height = height
+    }
+}
+
+class Asset {
+    location: string
+    tiles: Map<string, Rectangle>
+
+    constructor(location: string, tiles: Map<string, Rectangle>){
+        this.location = location
+        this.tiles = tiles
+    }
+}
+
+const assets: Asset[] = [
+    new Asset('assets/adventurer.png', new Map<string, Rectangle>([
+        ['one', new Rectangle(0, 0, 10, 10)]
+    ]))
+]
+
 class GameCanvas {
     canvas: HTMLCanvasElement
     frame: number
@@ -24,7 +54,7 @@ let singletonGameCanvas: GameCanvas = undefined
 
 
 
-function loop(){
+const loop = () => {
     singletonGameCanvas.paint()
     // ctx.beginPath();
     // ctx.moveTo(0, 0);
@@ -36,7 +66,7 @@ function loop(){
     }
 }
 
-function loadAssets(srcList: string[], fn){
+const loadAssets = (srcList: string[], fn: () => void) => {
     var count = srcList.length
     for (let src of srcList){
         var image = new Image()
@@ -52,7 +82,7 @@ function loadAssets(srcList: string[], fn){
 }
 
 
-function start(gameCanvas: GameCanvas){
+const start = (gameCanvas: GameCanvas) => {
     singletonGameCanvas = gameCanvas
     document.addEventListener('keydown', e => gameCanvas.keys.add(e.keyCode))
     document.addEventListener('keyup', e => gameCanvas.keys.delete(e.keyCode))

@@ -1,3 +1,15 @@
+class Rectangle {
+    constructor(top = 0, left = 0, width = 0, height = 0) {
+        this.top = 0;
+        this.left = 0;
+        this.width = 0;
+        this.height = 0;
+        this.top = top;
+        this.left = left;
+        this.width = width;
+        this.height = height;
+    }
+}
 class GameCanvas {
     constructor(canvas) {
         this.canvas = canvas;
@@ -14,7 +26,7 @@ class GameCanvas {
     }
 }
 let singletonGameCanvas = undefined;
-function loop() {
+const loop = () => {
     singletonGameCanvas.paint();
     // ctx.beginPath();
     // ctx.moveTo(0, 0);
@@ -24,8 +36,8 @@ function loop() {
     if (!singletonGameCanvas.paused) {
         window.requestAnimationFrame(loop);
     }
-}
-function loadAssets(srcList, fn) {
+};
+const loadAssets = (srcList, fn) => {
     var count = srcList.length;
     for (let src of srcList) {
         var image = new Image();
@@ -38,8 +50,8 @@ function loadAssets(srcList, fn) {
         };
         image.src = src;
     }
-}
-function start(gameCanvas) {
+};
+const start = (gameCanvas) => {
     singletonGameCanvas = gameCanvas;
     document.addEventListener('keydown', e => gameCanvas.keys.add(e.keyCode));
     document.addEventListener('keyup', e => gameCanvas.keys.delete(e.keyCode));
@@ -49,5 +61,5 @@ function start(gameCanvas) {
     });
     window.addEventListener('blur', () => gameCanvas.paused = true);
     loadAssets(['assets/adventurer.png'], () => window.requestAnimationFrame(loop));
-}
+};
 //# sourceMappingURL=game.js.map
