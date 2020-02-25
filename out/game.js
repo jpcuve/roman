@@ -1,15 +1,39 @@
 class Rectangle {
-    constructor(top = 0, left = 0, width = 0, height = 0) {
+    constructor(left = 0, top = 0, width = 0, height = 0) {
         this.top = 0;
         this.left = 0;
         this.width = 0;
         this.height = 0;
-        this.top = top;
         this.left = left;
+        this.top = top;
         this.width = width;
         this.height = height;
     }
 }
+class Asset {
+    constructor(location, tiles) {
+        this.location = location;
+        this.tiles = tiles;
+        this.image = undefined;
+    }
+    loadImage(fn) {
+        this.image = new Image();
+        this.image.onload = fn;
+        this.image.src = this.location;
+    }
+    paint(ctx, tileName, x, y) {
+        let r = this.tiles.get(tileName);
+        ctx.drawImage(this.image, r.left, r.top, r.width, r.height, x, y, r.width, r.height);
+    }
+}
+const assets = [
+    new Asset('assets/adventurer.png', new Map([
+        ['stand_0', new Rectangle(0, 0, 50, 37)],
+        ['stand_1', new Rectangle(50, 0, 50, 37)],
+        ['stand_2', new Rectangle(100, 0, 50, 37)],
+        ['stand_3', new Rectangle(150, 0, 50, 37)],
+    ]))
+];
 class GameCanvas {
     constructor(canvas) {
         this.canvas = canvas;
@@ -23,6 +47,7 @@ class GameCanvas {
         ctx.fillText(JSON.stringify(Array.from(this.keys)), 10, 10);
         ctx.fillText(String(this.paused), 10, 20);
         ctx.fillText(String(this.frame), 10, 30);
+        assets[0].paint(ctx, `stand_${Math.floor(this.frame / 7) % 4}`, 30, 30);
     }
 }
 let singletonGameCanvas = undefined;
@@ -37,19 +62,16 @@ const loop = () => {
         window.requestAnimationFrame(loop);
     }
 };
-const loadAssets = (srcList, fn) => {
-    var count = srcList.length;
-    for (let src of srcList) {
-        var image = new Image();
-        image.onload = () => {
-            console.log(`Image loaded: ${src}`);
+const loadAssets = (assets, fn) => {
+    var count = assets.length;
+    assets.forEach(asset => {
+        asset.loadImage(() => {
             count--;
             if (count == 0 && fn) {
                 fn();
             }
-        };
-        image.src = src;
-    }
+        });
+    });
 };
 const start = (gameCanvas) => {
     singletonGameCanvas = gameCanvas;
@@ -60,6 +82,6 @@ const start = (gameCanvas) => {
         window.requestAnimationFrame(loop);
     });
     window.addEventListener('blur', () => gameCanvas.paused = true);
-    loadAssets(['assets/adventurer.png'], () => window.requestAnimationFrame(loop));
+    loadAssets(assets, () => window.requestAnimationFrame(loop));
 };
 //# sourceMappingURL=game.js.map

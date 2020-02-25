@@ -4,9 +4,9 @@ class Rectangle {
     width: number = 0
     height: number = 0
 
-    constructor(top: number = 0, left: number = 0, width: number = 0, height: number = 0){
-        this.top = top
+    constructor(left: number = 0, top: number = 0, width: number = 0, height: number = 0){
         this.left = left
+        this.top = top
         this.width = width
         this.height = height
     }
@@ -15,16 +15,33 @@ class Rectangle {
 class Asset {
     location: string
     tiles: Map<string, Rectangle>
+    image: HTMLImageElement
 
     constructor(location: string, tiles: Map<string, Rectangle>){
         this.location = location
         this.tiles = tiles
+        this.image = undefined
+    }
+
+    loadImage(fn: () => void): void {
+        this.image = new Image()
+        this.image.onload = fn
+        this.image.src = this.location
+    }
+
+    paint(ctx: CanvasRenderingContext2D, tileName: string, x: number, y: number): void {
+        let r = this.tiles.get(tileName)
+        ctx.drawImage(this.image, r.left, r.top, r.width, r.height, x, y, r.width, r.height)
+
     }
 }
 
 const assets: Asset[] = [
     new Asset('assets/adventurer.png', new Map<string, Rectangle>([
-        ['one', new Rectangle(0, 0, 10, 10)]
+        ['stand_0', new Rectangle(0, 0, 50, 37)],
+        ['stand_1', new Rectangle(50, 0, 50, 37)],
+        ['stand_2', new Rectangle(100, 0, 50, 37)],
+        ['stand_3', new Rectangle(150, 0, 50, 37)],
     ]))
 ]
 
@@ -47,6 +64,7 @@ class GameCanvas {
         ctx.fillText(JSON.stringify(Array.from(this.keys)), 10, 10)
         ctx.fillText(String(this.paused), 10, 20)
         ctx.fillText(String(this.frame), 10, 30)    
+        assets[0].paint(ctx, `stand_${Math.floor(this.frame / 7) % 4}`, 30, 30)
     }
 }
 
@@ -66,21 +84,17 @@ const loop = () => {
     }
 }
 
-const loadAssets = (srcList: string[], fn: () => void) => {
-    var count = srcList.length
-    for (let src of srcList){
-        var image = new Image()
-        image.onload = () => {
-            console.log(`Image loaded: ${src}`)
+const loadAssets = (assets: Asset[], fn: () => void) => {
+    var count: number = assets.length
+    assets.forEach(asset => {
+        asset.loadImage(() => {
             count--
             if (count == 0 && fn){
                 fn()
             }
-        }
-        image.src = src
-    }
+        })
+    })
 }
-
 
 const start = (gameCanvas: GameCanvas) => {
     singletonGameCanvas = gameCanvas
@@ -91,5 +105,5 @@ const start = (gameCanvas: GameCanvas) => {
         window.requestAnimationFrame(loop)
     })
     window.addEventListener('blur', () => gameCanvas.paused = true)
-    loadAssets(['assets/adventurer.png'], () => window.requestAnimationFrame(loop))    
+    loadAssets(assets, () => window.requestAnimationFrame(loop))    
 }
